@@ -1,0 +1,20 @@
+<h2>View</h2>
+
+<div class="row">
+<div class="col-md-4">
+    <form>
+        <div class="form-group">
+            <label for="Id" class="control-label">Id</label>
+            <input readonly type="number" class="form-control margin-bottom" id="Id" name="Id" [(ngModel)]="demo && demo.id" />
+        </div>
+        <div class="form-group">
+            <label for="Name" class="control-label">Name</label>
+            <input readonly type="text" class="form-control margin-bottom" id="Name" name="Name" [(ngModel)]="demo && demo.name" />
+        </div>
+    </form>
+</div>
+</div>
+
+<div>
+<a [routerLink]="['/demo/list']">Back to List</a>
+</div>

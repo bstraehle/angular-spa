@@ -1,0 +1,22 @@
+<h2>List</h2>
+
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor='let demo of demos'>
+        <td>{{demo.id}}</td>
+        <td>{{demo.name}}</td>
+        <td><a [routerLink]="['/demo/view', demo.id]">View</a> | 
+            <a [routerLink]="['/demo/update', demo.id]">Update</a> | 
+            <a [routerLink]="['/demo/delete', demo.id]">Delete</a></td>
+    </tr>
+    </tbody>
+</table>
+
+<a [routerLink]="['/demo/add']">Add</a>
