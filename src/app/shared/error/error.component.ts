@@ -2,8 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'app-error',
-  templateUrl: './error.component.html'
+    selector: 'app-error',
+    templateUrl: './error.component.html',
+    standalone: false
 })
 
 export class ErrorComponent implements OnInit {

@@ -5,8 +5,9 @@ import { Demo } from 'src/app/models/demo.model';
 import { DemoService } from 'src/app/services/demo.service';
 
 @Component({
-  selector: 'app-update',
-  templateUrl: './update.component.html'
+    selector: 'app-update',
+    templateUrl: './update.component.html',
+    standalone: false
 })
 
 export class UpdateComponent implements OnInit {
