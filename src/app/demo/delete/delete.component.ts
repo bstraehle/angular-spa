@@ -5,8 +5,9 @@ import { Demo } from 'src/app/models/demo.model';
 import { DemoService } from 'src/app/services/demo.service';
 
 @Component({
-  selector: 'app-delete',
-  templateUrl: './delete.component.html'
+    selector: 'app-delete',
+    templateUrl: './delete.component.html',
+    standalone: false
 })
 
 export class DeleteComponent implements OnInit {

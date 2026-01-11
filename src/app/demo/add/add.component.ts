@@ -5,8 +5,9 @@ import { Demo } from 'src/app/models/demo.model';
 import { DemoService } from 'src/app/services/demo.service';
 
 @Component({
-  selector: 'app-add',
-  templateUrl: './add.component.html'
+    selector: 'app-add',
+    templateUrl: './add.component.html',
+    standalone: false
 })
 
 export class AddComponent implements OnInit {

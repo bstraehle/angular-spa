@@ -4,8 +4,9 @@ import { Demo } from 'src/app/models/demo.model';
 import { DemoService } from 'src/app/services/demo.service';
 
 @Component({
-  selector: 'app-list',
-  templateUrl: './list.component.html'
+    selector: 'app-list',
+    templateUrl: './list.component.html',
+    standalone: false
 })
 
 export class ListComponent implements OnInit {
