@@ -15,4 +15,6 @@ docker tag spa-image bstraehle/spa:latest
 docker push bstraehle/spa:latest  
 ```
 For Docker orchestration using this container, see https://github.com/bstraehle/docker  
-For Kubernetes orchestration using this container, see https://github.com/bstraehle/kubernetes  
+For Kubernetes orchestration using this container, see https://github.com/bstraehle/kubernetes
+
+<!-- Devin verification test -->  
