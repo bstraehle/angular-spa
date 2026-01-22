@@ -8,8 +8,9 @@
           "follow-redirects": "1.15.11",
           "ws": "8.19.0",
           "hono": "4.11.4",
-          "tar": "7.5.4"
-        },
+                  "tar": "7.5.4",
+                  "lodash": "4.17.23"
+                },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
