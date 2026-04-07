@@ -16,7 +16,10 @@
     "minimatch@>=10": "10.2.3",
     "rollup": "4.59.0",
     "immutable": "5.1.5",
-    "flatted": "3.4.2"
+    "flatted": "3.4.2",
+    "vite": "7.3.2",
+    "picomatch@>=4": "4.0.4",
+    "picomatch@<3": "2.3.2"
   },
   "scripts": {
     "ng": "ng",
