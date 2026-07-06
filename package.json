@@ -22,7 +22,8 @@
     "picomatch@<3": "2.3.2",
     "esbuild": "0.28.1",
     "piscina": "5.2.0",
-    "@babel/core": "7.29.6"
+    "@babel/core": "7.29.6",
+    "sigstore": "4.1.1"
   },
   "scripts": {
     "ng": "ng",
