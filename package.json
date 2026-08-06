@@ -27,7 +27,8 @@
     "@sigstore/tuf": "5.0.0",
     "tuf-js": "6.0.0",
     "@tufjs/models": "5.0.0",
-    "postcss": "8.5.18"
+    "postcss": "8.5.18",
+    "fast-uri": "3.1.5"
   },
   "scripts": {
     "ng": "ng",
