@@ -1,93 +1,69 @@
 ---
 name: testing-angular-spa
-description: How to build, test, and run the bstraehle/angular-spa Angular 21 SPA locally for end-to-end verification (dependency bumps, UI smoke tests).
+description: How to build, serve and end-to-end test the DemoSPA Angular SPA (bstraehle/angular-spa) locally, including the no-backend golden paths and known pre-existing quirks.
 ---
 
-# Testing the angular-spa repo
+# Testing the DemoSPA Angular SPA
 
-## Node version
-The repo's Angular 21 CLI requires Node >= 20.19 / 22.12. The box default (`node v20.18.1`) is
-below the minimum and `ng` will refuse to run. Always start with:
+## Toolchain
+- Angular CLI rejects the default node on PATH (20.x). Always run first:
+  `source ~/.nvm/nvm.sh && nvm use 22.12.0`
+- Install: `npm install` (or `npm ci` — useful as a lockfile-integrity check after any
+  dependency/`overrides` change, since it fails loudly on bad integrity hashes).
+- Build: `npm run build` → output `dist/demo-spa/browser`.
+- Tests: `CHROME_BIN=$(ls -d /opt/.devin/chrome/chrome/linux-*/chrome-linux64/chrome | head -1) npx ng test --watch=false --browsers=ChromeHeadlessNoSandbox`.
+  The repo has **zero** `.spec.ts` files, so `Executed 0 of 0 SUCCESS` is the expected
+  pass — never cite this as functional evidence; always test in the browser too.
+- Pre-existing build warnings: `NG8107` optional-chaining diagnostics in
+  `add.component.html` / `update.component.html`. Ignore them.
 
-```bash
-source ~/.nvm/nvm.sh && nvm use 22.12.0
-```
+## Two ways to serve
+- Production-equivalent (preferred for evidence): `npm run build && docker build -t spa-image . && docker run -d -p 8080:80 spa-image` → http://localhost:8080
+- Dev server: `npx ng serve` → http://localhost:4200
 
-## Build
+**Important:** the `Dockerfile` is stock nginx with no SPA `try_files ... /index.html`
+fallback, so **deep links 404 on :8080** (`/demo/list` returns 404 on a hard load). Load
+`/` and navigate by clicking links; if you must deep-link into a route (e.g.
+`/demo/update/:id`), use the dev server on :4200 instead. This is a long-standing repo
+trait, not a regression — but if you ever see route 404s, check this first.
 
-```bash
-npm ci          # ~5s
-npm run build   # emits dist/demo-spa/browser
-```
+## Dependency-only PRs (`overrides` bumps for Dependabot alerts)
+Verify at three levels:
+1. `npm ls <pkg>` shows `<pkg>@<version> overridden`; `grep -c '<pkg>-<oldversion>' package-lock.json` is 0.
+2. `npm ci` + `npm run build` succeed (the Angular CLI parses JSON schemas via
+   `ajv`/`fast-uri`, so build-tool dep breakage surfaces here).
+3. Browser golden paths on the built bundle (below) — proves the emitted bundle still boots.
 
-Expect pre-existing `NG8107` optional-chain warnings from `add.component.html` and
-`update.component.html` — they are not regressions.
+## Golden paths (no backend required)
+The .NET API (`environment.DemoAPIhost` = `http://host.docker.internal:8001`) is usually
+not running locally, so all HTTP calls fail. That is fine and expected — assert the app
+loads, routes, validates and does not white-screen.
+- Routes (`src/app/app-routing.module.ts`): `/`, `/demo/list`, `/demo/view/:id`,
+  `/demo/add`, `/demo/update/:id`, `/demo/delete/:id`, `/privacy`, `/error/:msg`.
+- Home: `Hello, World!` heading.
+- Nav "Demo" → `/demo/list`: `List` heading + `Id | Name | Action` table headers, empty
+  body (`getDemos()` has no `catchError`, so the failure just logs).
+- "Add" link → `/demo/add`. Best discriminating test = client-side validation
+  (`[disabled]="!addForm.valid"`, `required` + `min=1`):
+  - clear `Id` → red alert "Value must be greater than or equal to 1."
+  - clear `Name` → red alert "Please fill out this field."
+  - `Id=1` + non-empty `Name` → alerts clear and the `Add` button becomes enabled.
+  Note errors only render when the control is dirty/touched, so type-then-clear (Ctrl+A,
+  Delete) rather than just blurring an untouched field.
+- Clicking `Add` with the API down navigates to `/demo/list` (see `add.component.ts`).
 
-## Unit tests
-
-The repo currently has **zero `.spec.ts` files**, so karma reports `Executed 0 of 0` and karma may
-exit non-zero on "no tests". This is expected, not a failure.
-
-```bash
-CHROME_BIN=/opt/.devin/chrome/chrome/linux-137.0.7118.2/chrome-linux64/chrome \
-  npx ng test --watch=false --browsers=ChromeHeadlessNoSandbox
-```
-
-(The `ChromeHeadlessNoSandbox` custom launcher is defined in `karma.conf.js`.)
-If the chrome path above no longer exists, find one with `ls /opt/.devin/chrome/chrome/`.
-
-## Running the app
-
-Docker is available on the box and is the closest match to production (nginx serving the static
-bundle). The `Dockerfile` copies `dist/demo-spa/browser`, so **build first**:
-
-```bash
-npm run build
-docker build -t spa-image .
-docker run -d --name spa -p 8080:80 spa-image
-# http://localhost:8080
-```
-
-If docker is unavailable, `npx ng serve` is the fallback.
-
-### Backend
-The app talks to a separate .NET REST API (`environment.DemoAPIhost` in `src/environments/`).
-That backend is normally **not running** in a Devin box, so:
-- `/demo/list` renders the `List` heading + table header + `Add` link with **zero rows** — this is
-  the expected empty state, not a bug.
-- The browser console shows exactly one `Log` entry from `main-*.js`. That is the app's own
-  `console.log(err)` in `src/app/demo/list/list.component.ts`. Do not report it as a bundle error.
-- Detail/add/update/delete routes call `handleError` which redirects to `/error/:msg`, so CRUD
-  flows cannot be verified without the backend. Say so explicitly rather than skipping silently.
-
-## UI routes (from `src/app/app-routing.module.ts`)
-`/` (Hello, World!), `/privacy`, `/demo/list`, `/demo/view/:id`, `/demo/add`,
-`/demo/update/:id`, `/demo/delete/:id`, `/error/:msg`. Navbar links (from `app.component.html`):
-brand `DemoSPA` → `/`, `Demo` → `/demo/list`, `Privacy` → `/privacy`.
-
-## Verifying dependency / `overrides` bumps
-This repo pins security fixes via the `overrides` block in `package.json`. To prove an override
-actually took effect (rather than being silently ignored), check the installed tree, not just the
-lockfile:
-
-```bash
-npm ls <pkg> --all | grep -o "<pkg>@[0-9.]*" | sort -u
-```
-
-A single line matching the pinned version = override applied. Multiple versions = a stale copy
-survived.
-
-For audit posture, parse the JSON rather than eyeballing the text output:
-
-```bash
-npm audit --json > /tmp/audit.json
-python3 -c "import json;d=json.load(open('/tmp/audit.json'));print(d['metadata']['vulnerabilities'])"
-```
-
-Known long-tail: a large number of `high` findings can all cascade from a single advisory (e.g.
-brace-expansion `GHSA-mh99-v99m-4gvg` fanning out through minimatch/glob/karma/@angular/build).
-Group findings by advisory URL before claiming a regression. A pre-existing **low** `body-parser`
-finding (`GHSA-v422-hmwv-36x6`) is also present and unrelated to override changes.
+## Known pre-existing quirks (report, don't "fix" while testing)
+- `demo.service.ts` `handleError` does `errObj.error.Result` and then
+  `router.navigate(['error', undefined])`. For connection-level failures there is no
+  `Result`, producing a console `RuntimeError: NG04008: The requested path contains
+  undefined segment at index 1` and leaving the user on the current page instead of
+  `/error/:msg`. Expect this on `/demo/update/:id`, `/demo/view/:id`, `/demo/delete/:id`
+  whenever the backend is down. It might be a real bug when the API returns a
+  non-JSON/opaque error; a full end-to-end error-page check needs the .NET API running.
+- Acceptable console noise with no backend: the app's own `console.log` of the
+  `HttpErrorResponse` (minified to something like `Kr` in prod builds) and
+  `net::ERR_*` for `host.docker.internal:8001`. Anything about module/chunk loading or
+  Angular bootstrap is a real failure.
 
 ## Devin Secrets Needed
-None — everything runs locally with no credentials.
+None — no authentication is involved; the SPA has no login.
