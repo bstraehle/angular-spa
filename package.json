@@ -7,7 +7,7 @@
     "cookie": "1.1.1",
     "follow-redirects": "1.16.0",
     "ws": "8.21.0",
-    "hono": "4.12.34",
+    "hono": "4.13.8",
     "@hono/node-server": "2.0.10",
     "undici": "7.29.0",
     "tar": "7.5.21",
@@ -30,6 +30,7 @@
     "postcss": "8.5.23",
     "nanoid": "3.3.18",
     "socket.io-parser": "4.2.7",
+    "qs": "6.16.0",
     "karma": {
       "body-parser": "1.20.6"
     }
