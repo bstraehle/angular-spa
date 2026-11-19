@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 
 @Component({
     selector: 'app-privacy',
     templateUrl: './privacy.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

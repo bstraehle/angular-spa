@@ -7,15 +7,14 @@ description: How to build, serve and end-to-end test the DemoSPA Angular SPA (bs
 
 ## Toolchain
 - Angular CLI rejects the default node on PATH (20.x). Always run first:
-  `source ~/.nvm/nvm.sh && nvm use 22.12.0`
+  `source ~/.nvm/nvm.sh && nvm use 22.22.3` (Angular 22 requires node `^22.22.3 || ^24.15.0 || >=26`)
 - Install: `npm install` (or `npm ci` — useful as a lockfile-integrity check after any
   dependency/`overrides` change, since it fails loudly on bad integrity hashes).
 - Build: `npm run build` → output `dist/demo-spa/browser`.
 - Tests: `CHROME_BIN=$(ls -d /opt/.devin/chrome/chrome/linux-*/chrome-linux64/chrome | head -1) npx ng test --watch=false --browsers=ChromeHeadlessNoSandbox`.
   The repo has **zero** `.spec.ts` files, so `Executed 0 of 0 SUCCESS` is the expected
   pass — never cite this as functional evidence; always test in the browser too.
-- Pre-existing build warnings: `NG8107` optional-chaining diagnostics in
-  `add.component.html` / `update.component.html`. Ignore them.
+- Pre-existing build warning: initial bundle (~523 kB) exceeds the 500 kB `budgets` warning in `angular.json`. Ignore it.
 
 ## Two ways to serve
 - Production-equivalent (preferred for evidence): `npm run build && docker build -t spa-image . && docker run -d -p 8080:80 spa-image` → http://localhost:8080

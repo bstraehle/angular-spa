@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { Demo } from 'src/app/models/demo.model';
@@ -7,6 +7,7 @@ import { DemoService } from 'src/app/services/demo.service';
 @Component({
     selector: 'app-add',
     templateUrl: './add.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 
